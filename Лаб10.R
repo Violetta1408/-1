@@ -32,4 +32,4 @@ from = "<Sidyakova.Vita9@gmail.com>"
 to = c("<Sidyakova.Vita9@gmail.com>","<Sidyakova.Vita9@gmail.com>")
 subject <- "Результаты классификации KNN"
 body    <- ("Точность модели KNN")
-sendmail(from=from,to=to,subject=subject,msg=body,control=list(smtpServer="ASPMX.L.GOOGLE.COM"))
+sendmail(from=from,to=to,subject=subject,msg=body,control=list(smtpServer="gmail.com"))
