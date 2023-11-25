@@ -1,0 +1,48 @@
+code
+# Подготовка данных
+data <- data.frame(
+  sepal.length = c(5.1, 4.9, 4.7, 4.6, 5, 5.4, 4.6, 5, 4.4, 4.9),
+  sepal.width = c(3.5, 3, 3.2, 3.1, 3.6, 3.9, 3.4, 3.4, 2.9, 3.1),
+  petal.length = c(1.4, 1.4, 1.3, 1.5, 1.4, 1.7, 1.4, 1.5, 1.4, 1.5),
+  petal.width = c(0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.3, 0.2, 0.2, 0.1),
+  variety = c("Setosa", "Setosa", "Setosa", "Setosa", "Setosa", 
+              "Setosa", "Setosa", "Setosa", "Setosa", "Setosa")
+)
+
+# Преобразование категориальной переменной в числовой формат
+data$variety <- as.numeric(factor(data$variety))
+
+# Создание индикаторных переменных
+output_data <- data.frame(matrix(0, ncol = 3, nrow = nrow(data)))
+colnames(output_data) <- c("setosa", "versicolor", "virginica")
+output_data[data$variety, ] <- 1
+
+# Объединение входных и выходных данных
+combined_data <- cbind(data[, 1:4], output_data)
+
+# Создание обучающей и тестовой выборок
+set.seed(1234567)
+index <- sample(1:nrow(combined_data), round(nrow(combined_data) * 2/3), replace = FALSE)
+train_data <- combined_data[index, ]
+test_data <- combined_data[-index, ]
+
+# Установка библиотеки neuralnet
+library(neuralnet)
+
+# Обучение однослойной нейронной сети
+nn <- neuralnet(setosa + versicolor + virginica ~ sepal.length + sepal.width + petal.length + petal.width,
+                data = train_data, hidden = 1, linear.output = FALSE)
+
+# Предсказание на обучающей выборке
+prediction_train <- predict(nn, train_data[, 1:4])
+
+# Предсказание на тестовой выборке
+prediction_test <- predict(nn, test_data[, 1:4])
+
+# Вычисление процента ошибок на обучающей и тестовой выборках
+error_train <- sum(apply(prediction_train, 1, which.max) != apply(train_data[, 5:7], 1, which.max)) / nrow(train_data)
+error_test <- sum(apply(prediction_test, 1, which.max) != apply(test_data[, 5:7], 1, which.max)) / nrow(test_data)
+
+# Вывод результатов
+print(paste("Процент ошибок на обучающей выборке: ", error_train * 100, "%"))
+print(paste("Процент ошибок на тестовой выборке: ", error_test * 100, "%"))
